@@ -1,10 +1,10 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-  "Name": "Simply Spotify for StreamDeck",
+  "Name": "Simply Spotify",
   "Version": "1.0.0.0",
   "Author": "Mike Parker",
   "Description": "Spotify, simplified. Live album art on your keys, a Like button that always shows the real state, shuffle/repeat/volume with live feedback, playlists and device switching, and full Stream Deck + support: now playing on the touch strip with volume and scrub dials. Sign in once with your own Spotify developer app (free, two minutes, instructions included). Spotify Premium is required for playback control.",
-  "Category": "Simply Spotify for StreamDeck",
+  "Category": "Simply Spotify",
   "CategoryIcon": "imgs/plugin/category-icon",
   "Icon": "imgs/plugin/marketplace",
   "CodePath": "bin/plugin.js",

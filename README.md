@@ -1,4 +1,4 @@
-# Simply Spotify for StreamDeck
+# Simply Spotify
 
 Spotify, simplified. Fast, live Spotify control for Stream Deck and Stream Deck +, built on Elgato's official Node.js SDK.
 

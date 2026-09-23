@@ -2,7 +2,7 @@
   "name": "simply-spotify-streamdeck",
   "version": "1.0.0",
   "private": true,
-  "description": "Simply Spotify for StreamDeck: a simple, reliable Spotify plugin for Elgato Stream Deck and Stream Deck +",
+  "description": "Simply Spotify: a simple, reliable Spotify plugin for Elgato Stream Deck and Stream Deck +",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
