@@ -13,7 +13,8 @@
     "validate": "streamdeck validate com.mjp.spotifydeck.sdPlugin",
     "pack": "streamdeck pack com.mjp.spotifydeck.sdPlugin --force",
     "ui": "node scripts/make-ui.mjs",
-    "restart:force": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restart-plugin.ps1"
+    "restart:force": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restart-plugin.ps1",
+    "marketing": "node scripts/make-marketing.mjs"
   },
   "devDependencies": {
     "@elgato/cli": "^1.10.0",
@@ -22,12 +23,16 @@
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.1.0",
     "@tsconfig/node20": "^20.1.2",
-    "@types/node": "~20.14.0",
+    "@types/node": "~24.1.0",
     "rollup": "^4.0.2",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@elgato/streamdeck": "^1.4.1"
+    "@elgato/streamdeck": "^3.0.0",
+    "@elgato/utils": "^0.6.0"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

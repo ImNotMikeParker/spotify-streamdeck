@@ -59,9 +59,11 @@ npm run validate   # Elgato manifest/layout validation
 npm run pack       # build a distributable .streamDeckPlugin
 ```
 
-Note on `restart`: Stream Deck 7.0.x ignores the CLI restart for side-loaded plugins. `npm run restart:force` ends the plugin's Node process so Stream Deck relaunches it.
+`npm run marketing` renders the Maker Console thumbnail and gallery images into `assets/marketplace/` with headless Chrome.
 
-Targets Stream Deck 6.5+ and the bundled Node 20 runtime (`@elgato/streamdeck` 1.x), so it runs on current and older Stream Deck installs. Logs live in `com.mjp.spotifydeck.sdPlugin/logs/`.
+If `npm run restart` does nothing on your Stream Deck version, `npm run restart:force` ends the plugin's Node process so Stream Deck relaunches it.
+
+Requires Stream Deck 7.1 or newer (SDK 3, Node.js 24; the app downloads the runtime itself). Logs live in `com.mjp.spotifydeck.sdPlugin/logs/`.
 
 ### Layout
 

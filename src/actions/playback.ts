@@ -1,4 +1,5 @@
-import { action, type JsonObject } from "@elgato/streamdeck";
+import { action } from "@elgato/streamdeck";
+import type { JsonObject } from "@elgato/utils";
 import { GREEN, MUTED, glyphs, keyImage, notConnectedImage } from "../render/svg";
 import { auth, player } from "../spotify";
 import { isLikeable } from "../spotify/player";

@@ -1,11 +1,12 @@
-import streamDeck, { LogLevel, type JsonValue } from "@elgato/streamdeck";
+import streamDeck from "@elgato/streamdeck";
+import type { JsonValue } from "@elgato/utils";
 import { AddToPlaylist, PlayUri, PlaybackDevice, Seek, Volume, normalizeUri } from "./actions/controls";
 import { NowPlayingDial, SeekDial, VolumeDial } from "./actions/dials";
 import { Like, Next, NowPlaying, PlayPause, Previous, Repeat, Shuffle } from "./actions/playback";
 import { auth, describeError, player } from "./spotify";
 import { catalog } from "./spotify/catalog";
 
-streamDeck.logger.setLevel(LogLevel.INFO);
+streamDeck.logger.setLevel("info");
 const logger = streamDeck.logger.createScope("plugin");
 
 // Register every action.
@@ -42,7 +43,7 @@ type PiMessage =
   | { event: "resolve-uri"; uri: string };
 
 function sendToPi(payload: JsonValue): void {
-  streamDeck.ui.current?.sendToPropertyInspector(payload).catch((e) => logger.warn(`sendToPropertyInspector failed: ${e}`));
+  streamDeck.ui.sendToPropertyInspector(payload).catch((e) => logger.warn(`sendToPropertyInspector failed: ${e}`));
 }
 
 function sendAuthStatus(): void {

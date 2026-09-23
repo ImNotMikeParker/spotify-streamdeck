@@ -1,4 +1,5 @@
-import { action, type DialAction, type DialDownEvent, type DialRotateEvent, type JsonObject, type TouchTapEvent } from "@elgato/streamdeck";
+import { action, type DialAction, type DialDownEvent, type DialRotateEvent, type TouchTapEvent } from "@elgato/streamdeck";
+import type { JsonObject } from "@elgato/utils";
 import { GREEN, formatTime, glyphs, iconSvg } from "../render/svg";
 import { auth, player } from "../spotify";
 import { SpotifyAction, type AnyAction } from "./base";
@@ -172,4 +173,3 @@ export class VolumeDial extends SpotifyAction<VolumeDialSettings> {
   }
 }
 
-export type { JsonObject };

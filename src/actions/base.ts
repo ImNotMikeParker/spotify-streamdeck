@@ -1,20 +1,26 @@
 import streamDeck, {
   SingletonAction,
+  type Action,
   type DialAction,
   type DidReceiveSettingsEvent,
-  type JsonObject,
   type KeyAction,
   type KeyDownEvent,
   type KeyUpEvent,
   type WillAppearEvent,
   type WillDisappearEvent,
 } from "@elgato/streamdeck";
+import type { JsonObject } from "@elgato/utils";
 import { auth, describeError, player } from "../spotify";
 
 const logger = streamDeck.logger.createScope("actions");
 const HOLD_MS = 550;
 
+/** The two controller types this plugin renders to (Neo infobar is not supported yet). */
 export type AnyAction<T extends JsonObject> = KeyAction<T> | DialAction<T>;
+
+function asRenderable<T extends JsonObject>(a: Action<T>): AnyAction<T> | null {
+  return a.isNeoInfobar() ? null : a;
+}
 
 /**
  * Shared plumbing for every action:
@@ -50,9 +56,11 @@ export abstract class SpotifyAction<T extends JsonObject = JsonObject> extends S
   protected onLongPress?(action: AnyAction<T>, settings: T): Promise<void>;
 
   override async onWillAppear(ev: WillAppearEvent<T>): Promise<void> {
-    this.settingsById.set(ev.action.id, ev.payload.settings ?? ({} as T));
+    const settings = ev.payload.settings ?? ({} as T);
+    this.settingsById.set(ev.action.id, settings);
     player.start();
-    await this.safeRender(ev.action, ev.payload.settings ?? ({} as T));
+    const a = asRenderable(ev.action);
+    if (a) await this.safeRender(a, settings);
   }
 
   override onWillDisappear(ev: WillDisappearEvent<T>): void {
@@ -65,8 +73,10 @@ export abstract class SpotifyAction<T extends JsonObject = JsonObject> extends S
   }
 
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<T>): Promise<void> {
-    this.settingsById.set(ev.action.id, ev.payload.settings ?? ({} as T));
-    await this.safeRender(ev.action, ev.payload.settings ?? ({} as T));
+    const settings = ev.payload.settings ?? ({} as T);
+    this.settingsById.set(ev.action.id, settings);
+    const a = asRenderable(ev.action);
+    if (a) await this.safeRender(a, settings);
   }
 
   override async onKeyDown(ev: KeyDownEvent<T>): Promise<void> {
@@ -122,7 +132,8 @@ export abstract class SpotifyAction<T extends JsonObject = JsonObject> extends S
 
   protected async renderAll(): Promise<void> {
     for (const action of this.actions) {
-      await this.safeRender(action, this.settingsById.get(action.id) ?? ({} as T));
+      const a = asRenderable(action);
+      if (a) await this.safeRender(a, this.settingsById.get(a.id) ?? ({} as T));
     }
   }
 
@@ -130,7 +141,7 @@ export abstract class SpotifyAction<T extends JsonObject = JsonObject> extends S
     try {
       await this.render(action, settings);
     } catch (e) {
-      logger.error(`Render failed for ${this.manifestId}: ${e instanceof Error ? e.stack ?? e.message : e}`);
+      logger.error(`Render failed for ${this.manifestId}: ${e instanceof Error ? (e.stack ?? e.message) : e}`);
     }
   }
 }
