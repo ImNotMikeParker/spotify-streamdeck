@@ -10,12 +10,23 @@
   "CodePath": "bin/plugin.js",
   "UUID": "com.mjp.spotifydeck",
   "SDKVersion": 2,
-  "Software": { "MinimumVersion": "6.5" },
+  "Software": {
+    "MinimumVersion": "6.5"
+  },
   "OS": [
-    { "Platform": "windows", "MinimumVersion": "10" },
-    { "Platform": "mac", "MinimumVersion": "12" }
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    },
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    }
   ],
-  "Nodejs": { "Version": "20", "Debug": "enabled" },
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
   "Actions": [
     {
       "Name": "Play / Pause",
@@ -23,11 +34,18 @@
       "Icon": "imgs/actions/play-pause/icon",
       "Tooltip": "Toggle playback. Shows album art with the current state. Long-press for a secondary action.",
       "PropertyInspectorPath": "ui/play-pause.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/play-pause/key", "Name": "Toggle" }]
+      "States": [
+        {
+          "Image": "imgs/actions/play-pause/key",
+          "Name": "Toggle"
+        }
+      ]
     },
     {
       "Name": "Now Playing",
@@ -35,10 +53,16 @@
       "Icon": "imgs/actions/now-playing/icon",
       "Tooltip": "Album art plus track and artist, always live. Press and long-press actions are configurable.",
       "PropertyInspectorPath": "ui/now-playing.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": false,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/now-playing/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/now-playing/key"
+        }
+      ]
     },
     {
       "Name": "Next Track",
@@ -46,9 +70,16 @@
       "Icon": "imgs/actions/next/icon",
       "Tooltip": "Skip to the next track.",
       "PropertyInspectorPath": "ui/simple.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
-      "States": [{ "Image": "imgs/actions/next/key", "TitleAlignment": "bottom" }]
+      "States": [
+        {
+          "Image": "imgs/actions/next/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
     },
     {
       "Name": "Previous Track",
@@ -56,9 +87,16 @@
       "Icon": "imgs/actions/previous/icon",
       "Tooltip": "Restart the current track, or go to the previous one if you are near the start (like the Spotify app).",
       "PropertyInspectorPath": "ui/previous.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
-      "States": [{ "Image": "imgs/actions/previous/key", "TitleAlignment": "bottom" }]
+      "States": [
+        {
+          "Image": "imgs/actions/previous/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
     },
     {
       "Name": "Like",
@@ -66,13 +104,25 @@
       "Icon": "imgs/actions/like/icon",
       "Tooltip": "Save or remove the current track from Liked Songs. The heart fills live when a track is already liked.",
       "PropertyInspectorPath": "ui/like.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "States": [
-        { "Image": "imgs/actions/like/key", "Name": "Toggle", "TitleAlignment": "bottom" },
-        { "Image": "imgs/actions/like/key", "Name": "Like" },
-        { "Image": "imgs/actions/like/key", "Name": "Unlike" }
+        {
+          "Image": "imgs/actions/like/key",
+          "Name": "Toggle",
+          "TitleAlignment": "bottom"
+        },
+        {
+          "Image": "imgs/actions/like/key",
+          "Name": "Like"
+        },
+        {
+          "Image": "imgs/actions/like/key",
+          "Name": "Unlike"
+        }
       ]
     },
     {
@@ -81,13 +131,25 @@
       "Icon": "imgs/actions/shuffle/icon",
       "Tooltip": "Toggle shuffle. Lights up when shuffle is on.",
       "PropertyInspectorPath": "ui/simple.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "States": [
-        { "Image": "imgs/actions/shuffle/key", "Name": "Toggle", "TitleAlignment": "bottom" },
-        { "Image": "imgs/actions/shuffle/key", "Name": "On" },
-        { "Image": "imgs/actions/shuffle/key", "Name": "Off" }
+        {
+          "Image": "imgs/actions/shuffle/key",
+          "Name": "Toggle",
+          "TitleAlignment": "bottom"
+        },
+        {
+          "Image": "imgs/actions/shuffle/key",
+          "Name": "On"
+        },
+        {
+          "Image": "imgs/actions/shuffle/key",
+          "Name": "Off"
+        }
       ]
     },
     {
@@ -96,14 +158,29 @@
       "Icon": "imgs/actions/repeat/icon",
       "Tooltip": "Cycle repeat: off, all, one. Shows the current mode live.",
       "PropertyInspectorPath": "ui/simple.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "States": [
-        { "Image": "imgs/actions/repeat/key", "Name": "Cycle", "TitleAlignment": "bottom" },
-        { "Image": "imgs/actions/repeat/key", "Name": "Off" },
-        { "Image": "imgs/actions/repeat/key", "Name": "All" },
-        { "Image": "imgs/actions/repeat/key", "Name": "One" }
+        {
+          "Image": "imgs/actions/repeat/key",
+          "Name": "Cycle",
+          "TitleAlignment": "bottom"
+        },
+        {
+          "Image": "imgs/actions/repeat/key",
+          "Name": "Off"
+        },
+        {
+          "Image": "imgs/actions/repeat/key",
+          "Name": "All"
+        },
+        {
+          "Image": "imgs/actions/repeat/key",
+          "Name": "One"
+        }
       ]
     },
     {
@@ -112,10 +189,16 @@
       "Icon": "imgs/actions/volume/icon",
       "Tooltip": "Volume up, down, mute or set to a fixed level. Shows the current volume live.",
       "PropertyInspectorPath": "ui/volume.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/volume/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/volume/key"
+        }
+      ]
     },
     {
       "Name": "Seek",
@@ -123,10 +206,16 @@
       "Icon": "imgs/actions/seek/icon",
       "Tooltip": "Jump forward or backward by a number of seconds.",
       "PropertyInspectorPath": "ui/seek.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
       "UserTitleEnabled": false,
-      "States": [{ "Image": "imgs/actions/seek/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/seek/key"
+        }
+      ]
     },
     {
       "Name": "Play Playlist / URI",
@@ -134,9 +223,16 @@
       "Icon": "imgs/actions/play-uri/icon",
       "Tooltip": "Start one of your playlists (picked from a list) or any Spotify link/URI: playlist, album, artist, track, podcast.",
       "PropertyInspectorPath": "ui/play-uri.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
-      "States": [{ "Image": "imgs/actions/play-uri/key", "TitleAlignment": "bottom" }]
+      "States": [
+        {
+          "Image": "imgs/actions/play-uri/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
     },
     {
       "Name": "Add to Playlist",
@@ -144,9 +240,16 @@
       "Icon": "imgs/actions/add-to-playlist/icon",
       "Tooltip": "Add the current track to a playlist you choose. Skips duplicates.",
       "PropertyInspectorPath": "ui/add-to-playlist.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
-      "States": [{ "Image": "imgs/actions/add-to-playlist/key", "TitleAlignment": "bottom" }]
+      "States": [
+        {
+          "Image": "imgs/actions/add-to-playlist/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
     },
     {
       "Name": "Playback Device",
@@ -154,9 +257,16 @@
       "Icon": "imgs/actions/device/icon",
       "Tooltip": "Move playback to a specific device (this PC, phone, speaker...). Highlights when that device is active.",
       "PropertyInspectorPath": "ui/device.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "SupportedInMultiActions": true,
-      "States": [{ "Image": "imgs/actions/device/key", "TitleAlignment": "bottom" }]
+      "States": [
+        {
+          "Image": "imgs/actions/device/key",
+          "TitleAlignment": "bottom"
+        }
+      ]
     },
     {
       "Name": "Now Playing (Dial)",
@@ -164,7 +274,9 @@
       "Icon": "imgs/actions/now-playing/icon",
       "Tooltip": "Stream Deck + dial: album art, track, artist and progress on the touch strip. Rotate for volume or scrubbing, press for play/pause, tap for next, long tap for like.",
       "PropertyInspectorPath": "ui/dial-now-playing.html",
-      "Controllers": ["Encoder"],
+      "Controllers": [
+        "Encoder"
+      ],
       "UserTitleEnabled": false,
       "Encoder": {
         "layout": "layouts/now-playing.json",
@@ -177,7 +289,11 @@
           "LongTouch": "Like / unlike"
         }
       },
-      "States": [{ "Image": "imgs/actions/now-playing/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/now-playing/key"
+        }
+      ]
     },
     {
       "Name": "Volume (Dial)",
@@ -185,7 +301,9 @@
       "Icon": "imgs/actions/volume/icon",
       "Tooltip": "Stream Deck + dial: rotate to change volume, press to mute, tap to play/pause.",
       "PropertyInspectorPath": "ui/dial-volume.html",
-      "Controllers": ["Encoder"],
+      "Controllers": [
+        "Encoder"
+      ],
       "Encoder": {
         "layout": "$B1",
         "Icon": "imgs/actions/volume/icon",
@@ -196,7 +314,11 @@
           "Touch": "Play / pause"
         }
       },
-      "States": [{ "Image": "imgs/actions/volume/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/volume/key"
+        }
+      ]
     },
     {
       "Name": "Scrub (Dial)",
@@ -204,7 +326,9 @@
       "Icon": "imgs/actions/seek/icon",
       "Tooltip": "Stream Deck + dial: rotate to scrub through the track, press for play/pause, tap for next, long tap for previous.",
       "PropertyInspectorPath": "ui/dial-seek.html",
-      "Controllers": ["Encoder"],
+      "Controllers": [
+        "Encoder"
+      ],
       "UserTitleEnabled": false,
       "Encoder": {
         "layout": "layouts/now-playing.json",
@@ -217,7 +341,11 @@
           "LongTouch": "Previous track"
         }
       },
-      "States": [{ "Image": "imgs/actions/seek/key" }]
+      "States": [
+        {
+          "Image": "imgs/actions/seek/key"
+        }
+      ]
     }
   ]
 }
