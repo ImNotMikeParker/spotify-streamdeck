@@ -141,6 +141,6 @@ const pages = {
 
 for (const [name, body] of Object.entries(pages)) {
   const title = name.replace(".html", "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  writeFileSync(join(uiDir, name), head(title === "Simple" ? "Spotify Deck" : title) + body + foot);
+  writeFileSync(join(uiDir, name), head(title === "Simple" ? "Simply Spotify" : title) + body + foot);
 }
 console.log(`${Object.keys(pages).length} property inspector pages written`);

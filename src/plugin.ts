@@ -107,5 +107,5 @@ streamDeck.system.onSystemDidWakeUp(() => player.refreshSoon(2000));
 
 await streamDeck.connect();
 await auth.init();
-logger.info(`Spotify Deck ready (connected=${auth.isConnected})`);
+logger.info(`Simply Spotify ready (connected=${auth.isConnected})`);
 if (streamDeck.actions.length > 0) player.start();

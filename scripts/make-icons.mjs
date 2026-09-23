@@ -58,9 +58,10 @@ for (const [name, a] of Object.entries(actions)) {
 }
 
 mkdirSync(join(plugin, "imgs/plugin"), { recursive: true });
+// Category icon: monochrome white, transparent background (Elgato guideline). Same dial-plus-play motif.
 writeFileSync(
   join(plugin, "imgs/plugin/category-icon.svg"),
-  `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 144 144"><circle cx="72" cy="72" r="60" fill="#ffffff"/><path d="M40 56 q36 -10 70 6 M44 76 q30 -8 58 5 M48 96 q24 -6 46 4" fill="none" stroke="#000" stroke-width="10" stroke-linecap="round"/></svg>`,
+  `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 144 144"><path d="M32 106 A54 54 0 1 1 112 106" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/><path d="M58 46 L58 98 L102 72 Z" fill="#ffffff"/></svg>`,
 );
 
 // ---- Minimal PNG writer (RGBA, no deps) -------------------------------------
@@ -102,7 +103,11 @@ function png(width, height, rgba) {
   ]);
 }
 
-/** Rasterise the logo: rounded dark square, green circle, three white "sound wave" arcs. 4x supersampled. */
+/**
+ * Rasterise the app icon: rounded dark square, a thick green "dial" ring open at the bottom with a small
+ * indicator notch, and a white play triangle in the middle. Deliberately our own shape, not Spotify's mark.
+ * 4x supersampled.
+ */
 function logo(size) {
   const SS = 4;
   const rgba = Buffer.alloc(size * size * 4);
@@ -113,23 +118,28 @@ function logo(size) {
     const dx = Math.max(Math.abs(x - r) - (r - rad), 0);
     const dy = Math.max(Math.abs(y - r) - (r - rad), 0);
     if (Math.hypot(dx, dy) > rad) return null;
-    // Green disc.
+
     const d = Math.hypot(x - r, y - r);
-    if (d > size * 0.36) return [18, 18, 18];
-    // Three arcs (parts of circles centred below-left, like the Spotify-style waves but our own geometry).
-    const cx = r - size * 0.05;
-    const cy = r + size * 0.42;
-    const dd = Math.hypot(x - cx, y - cy);
-    const ang = Math.atan2(cy - y, x - cx); // 0..pi above centre
-    const withinAngle = ang > Math.PI * 0.25 && ang < Math.PI * 0.75;
-    for (const [rr, w] of [
-      [size * 0.2, size * 0.045],
-      [size * 0.33, size * 0.05],
-      [size * 0.46, size * 0.055],
-    ]) {
-      if (withinAngle && Math.abs(dd - rr) < w / 2) return [255, 255, 255];
+    const ang = Math.atan2(y - r, x - r); // -pi..pi, 0 = right, +pi/2 = down
+    // Dial ring: radius 0.36, thickness 0.075, gap of 70 degrees centred at the bottom.
+    const ringR = size * 0.36;
+    const ringW = size * 0.075;
+    const inRing = Math.abs(d - ringR) < ringW / 2;
+    const gapHalf = (70 / 2) * (Math.PI / 180);
+    const inGap = Math.abs(ang - Math.PI / 2) < gapHalf;
+    if (inRing && !inGap) return [29, 185, 84];
+    // Indicator notch at the top of the ring (a small white dot).
+    if (Math.hypot(x - r, y - (r - ringR)) < ringW * 0.28) return [255, 255, 255];
+    // Play triangle (slightly right-shifted so it looks centred).
+    const tx = x - r - size * 0.03;
+    const ty = y - r;
+    const h = size * 0.17; // half height
+    const w = size * 0.3; // width
+    if (tx >= -w / 2 && tx <= w / 2) {
+      const limit = h * (1 - (tx + w / 2) / w);
+      if (Math.abs(ty) <= limit) return [255, 255, 255];
     }
-    return [29, 185, 84];
+    return [18, 18, 18];
   };
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
@@ -159,4 +169,7 @@ function logo(size) {
 
 writeFileSync(join(plugin, "imgs/plugin/marketplace.png"), logo(256));
 writeFileSync(join(plugin, "imgs/plugin/marketplace@2x.png"), logo(512));
+// Maker Console submission asset (app icon must be 288 x 288 PNG).
+mkdirSync(join(root, "assets/marketplace"), { recursive: true });
+writeFileSync(join(root, "assets/marketplace/app-icon-288.png"), logo(288));
 console.log("icons written");

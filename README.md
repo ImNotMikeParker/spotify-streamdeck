@@ -1,6 +1,6 @@
-# Spotify Deck – a better Spotify plugin for Elgato Stream Deck
+# Simply Spotify for StreamDeck
 
-Fast, live Spotify control for Stream Deck and Stream Deck +. Built on Elgato's official Node.js SDK.
+Spotify, simplified. Fast, live Spotify control for Stream Deck and Stream Deck +, built on Elgato's official Node.js SDK.
 
 **Why another one?**
 
@@ -38,9 +38,11 @@ All of those are configurable per action.
 1. Open the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and click **Create app**.
 2. Any name and description. Under **Redirect URIs** add exactly `http://127.0.0.1:8888/callback`. Tick **Web API**. Save.
 3. Copy the app's **Client ID**.
-4. In Stream Deck, drop any Spotify Deck action on a key, paste the Client ID in its settings and click **Connect to Spotify**. Approve in the browser.
+4. In Stream Deck, drop any Simply Spotify action on a key, paste the Client ID in its settings and click **Connect to Spotify**. Approve in the browser.
 
 Spotify Premium is required for playback control (Spotify's rule, not ours). Free accounts can still see Now Playing and use Like.
+
+Why your own developer app? Spotify caps each app in development mode at 5 users and only grants larger quotas to registered businesses, so a shared Client ID is not possible for an independent plugin. Your app is yours alone and nothing leaves your machine except calls to Spotify.
 
 If port 8888 is taken on your machine, change the port in the settings and use the matching redirect URI in the dashboard.
 

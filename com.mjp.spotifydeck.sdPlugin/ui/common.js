@@ -89,6 +89,7 @@
     if (connected) buttons.appendChild(el("button", { text: "Disconnect", onclick: () => send({ event: "disconnect" }) }));
     details.appendChild(el("sdpi-item", { label: "" }, [buttons]));
     host.appendChild(details);
+    host.appendChild(el("div", { class: "sd-attrib", text: "Track info and artwork provided by Spotify." }));
 
     host.querySelectorAll("a[data-url]").forEach((a) =>
       a.addEventListener("click", (e) => {
