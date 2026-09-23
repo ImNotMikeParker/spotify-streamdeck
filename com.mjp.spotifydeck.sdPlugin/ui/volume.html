@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Volume</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Action">
+    <sdpi-select setting="mode" default="up">
+      <option value="up" selected>Volume up</option>
+      <option value="down">Volume down</option>
+      <option value="mute">Mute / unmute</option>
+      <option value="set">Set to a level</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Step">
+    <sdpi-range setting="step" min="1" max="50" step="1" default="10" showlabels></sdpi-range>
+  </sdpi-item>
+  <sdpi-item label="Level">
+    <sdpi-range setting="level" min="0" max="100" step="5" default="50" showlabels></sdpi-range>
+  </sdpi-item>
+  <div class="sd-help">Step applies to up/down; Level applies to Set. Volume needs a device that supports it (the desktop app does, some Connect speakers do not).</div>
+</body>
+</html>

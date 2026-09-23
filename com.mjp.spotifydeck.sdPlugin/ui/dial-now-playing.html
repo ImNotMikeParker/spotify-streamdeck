@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Dial Now Playing</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Rotate">
+    <sdpi-select setting="rotate" default="volume">
+      <option value="volume" selected>Volume</option>
+      <option value="seek">Scrub through the track</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Volume step">
+    <sdpi-range setting="volumeStep" min="1" max="20" step="1" default="5" showlabels></sdpi-range>
+  </sdpi-item>
+  <sdpi-item label="Scrub step (s)">
+    <sdpi-range setting="seekStep" min="1" max="30" step="1" default="5" showlabels></sdpi-range>
+  </sdpi-item>
+  <sdpi-item label="Press dial">
+    <sdpi-select setting="press" default="play-pause">
+      <option value="play-pause" selected>Play / pause</option>
+      <option value="next">Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like">Like / unlike</option>
+      <option value="mute">Mute / unmute</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Tap screen">
+    <sdpi-select setting="tap" default="next">
+      <option value="play-pause">Play / pause</option>
+      <option value="next" selected>Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like">Like / unlike</option>
+      <option value="mute">Mute / unmute</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Long tap">
+    <sdpi-select setting="longTap" default="like">
+      <option value="play-pause">Play / pause</option>
+      <option value="next">Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like" selected>Like / unlike</option>
+      <option value="mute">Mute / unmute</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+</body>
+</html>

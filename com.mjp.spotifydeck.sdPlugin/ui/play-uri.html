@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Play Uri</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Source">
+    <sdpi-radio setting="source" default="playlist" columns="2">
+      <option value="playlist">My playlists</option>
+      <option value="uri">Link / URI</option>
+    </sdpi-radio>
+  </sdpi-item>
+  <sdpi-item label="Playlist">
+    <sdpi-select setting="playlistUri" datasource="getPlaylists" loading="Loading your playlists…" show-refresh placeholder="Choose a playlist"></sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Link / URI">
+    <sdpi-textfield setting="uri" placeholder="https://open.spotify.com/album/… or spotify:playlist:…"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Shuffle">
+    <sdpi-select setting="shuffle" default="keep">
+      <option value="keep" selected>Leave as is</option>
+      <option value="on">Turn on</option>
+      <option value="off">Turn off</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Label">
+    <sdpi-textfield setting="label" placeholder="Optional name shown on the key"></sdpi-textfield>
+  </sdpi-item>
+  <div class="sd-help">Works with playlists, albums, artists, tracks, podcasts and episodes. Paste a share link straight from Spotify. The key turns green while that playlist or album is playing.</div>
+</body>
+</html>

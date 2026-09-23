@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Play Pause</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Album art">
+    <sdpi-checkbox setting="showArt" default="true" label="Show album art behind the button"></sdpi-checkbox>
+  </sdpi-item>
+  <sdpi-item label="Progress">
+    <sdpi-checkbox setting="showProgress" default="true" label="Show a progress bar"></sdpi-checkbox>
+  </sdpi-item>
+  <sdpi-item label="Long press">
+    <sdpi-select setting="longPress" default="next">
+      <option value="next" selected>Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like">Like / unlike</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+  <div class="sd-help">Tip: if you never long-press, choose Nothing so a normal press fires the instant you touch the key.</div>
+</body>
+</html>

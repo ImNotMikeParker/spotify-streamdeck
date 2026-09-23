@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Device</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Device">
+    <sdpi-select setting="device" datasource="getDevices" loading="Looking for devices…" show-refresh placeholder="Choose a device"></sdpi-select>
+  </sdpi-item>
+  <div class="sd-help">Only devices currently online in Spotify are listed. Open Spotify on the device and hit refresh if it is missing. If Spotify later changes the device id, the key falls back to matching by name.</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Add To Playlist</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Playlist">
+    <sdpi-select setting="playlistUri" datasource="getPlaylists" loading="Loading your playlists…" show-refresh placeholder="Choose a playlist"></sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Duplicates">
+    <sdpi-checkbox setting="allowDuplicates" label="Allow adding a track that is already in the playlist"></sdpi-checkbox>
+  </sdpi-item>
+  <div class="sd-help">Only playlists you can edit will accept tracks. Podcast episodes cannot be added.</div>
+</body>
+</html>

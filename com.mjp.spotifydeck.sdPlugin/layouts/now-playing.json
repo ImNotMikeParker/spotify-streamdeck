@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "spotify-now-playing",
+  "items": [
+    { "key": "art", "type": "pixmap", "rect": [4, 4, 92, 92], "zOrder": 1 },
+    { "key": "track", "type": "text", "rect": [102, 6, 96, 24], "font": { "size": 15, "weight": 600 }, "alignment": "left", "color": "#ffffff", "text-overflow": "ellipsis", "zOrder": 2 },
+    { "key": "artist", "type": "text", "rect": [102, 31, 96, 20], "font": { "size": 12, "weight": 400 }, "alignment": "left", "color": "#b3b3b3", "text-overflow": "ellipsis", "zOrder": 2 },
+    { "key": "time", "type": "text", "rect": [102, 55, 96, 18], "font": { "size": 11, "weight": 400 }, "alignment": "left", "color": "#8a8a8a", "zOrder": 2 },
+    { "key": "bar", "type": "bar", "rect": [102, 80, 94, 10], "subtype": 0, "border_w": 0, "bar_bg_c": "#3a3a3a", "bar_fill_c": "#1db954", "range": { "min": 0, "max": 1000 }, "value": 0, "zOrder": 2 }
+  ]
+}

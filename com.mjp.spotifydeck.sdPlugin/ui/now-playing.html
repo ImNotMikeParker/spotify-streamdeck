@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <title>Now Playing</title>
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <link rel="stylesheet" href="common.css" />
+  <script src="common.js"></script>
+</head>
+<body>
+  <div id="account"></div>
+  <hr />
+  <sdpi-item label="Press">
+    <sdpi-select setting="press" default="play-pause">
+      <option value="play-pause" selected>Play / pause</option>
+      <option value="next">Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like">Like / unlike</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Long press">
+    <sdpi-select setting="longPress" default="like">
+      <option value="play-pause">Play / pause</option>
+      <option value="next">Next track</option>
+      <option value="previous">Previous track</option>
+      <option value="like" selected>Like / unlike</option>
+      <option value="none">Nothing</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Text">
+    <sdpi-checkbox setting="showText" default="true" label="Show track and artist"></sdpi-checkbox>
+  </sdpi-item>
+  <sdpi-item label="Progress">
+    <sdpi-checkbox setting="showProgress" default="true" label="Show a progress bar"></sdpi-checkbox>
+  </sdpi-item>
+</body>
+</html>
