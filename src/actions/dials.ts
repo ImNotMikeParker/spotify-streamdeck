@@ -2,6 +2,7 @@ import { action, type DialAction, type DialDownEvent, type DialRotateEvent, type
 import type { JsonObject } from "@elgato/utils";
 import { GREEN, formatTime, glyphs, iconSvg } from "../render/svg";
 import { auth, player } from "../spotify";
+import { formatClock } from "../spotify/player";
 import { SpotifyAction, type AnyAction } from "./base";
 
 type TapAction = "next" | "previous" | "play-pause" | "like" | "mute" | "none";
@@ -59,7 +60,13 @@ abstract class NowPlayingDialBase extends SpotifyAction<NowPlayingDialSettings> 
     const st = player.state;
     const t = st?.track;
     if (!t) {
-      await a.setFeedback({ art: SPOTIFY_ICON, track: player.error ? "Spotify offline" : "Nothing playing", artist: player.error ?? "", time: "", bar: 0 });
+      await a.setFeedback({
+        art: SPOTIFY_ICON,
+        track: player.isLimited ? "Spotify quota hit" : player.error ? "Spotify offline" : "Nothing playing",
+        artist: player.isLimited ? `Back at ${formatClock(player.limitedUntil!)}` : (player.error ?? ""),
+        time: "",
+        bar: 0,
+      });
       this.lastArt.set(a.id, null);
       return;
     }

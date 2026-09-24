@@ -4,7 +4,7 @@ Spotify, simplified. Fast, live Spotify control for Stream Deck and Stream Deck 
 
 **Why another one?**
 
-- **One shared, polite poller.** Every key reads from a single player monitor that polls Spotify every 4 s while playing and 12 s when idle, backs off on errors, refreshes tokens automatically and coalesces dial twists into single requests. No more once-a-second hammering, no more random "broken" state.
+- **Built for Spotify's daily quota.** Since July 2026 every Development Mode app shares a daily request budget per developer account, and naive once-a-second polling blows through it by lunchtime. On Windows the plugin watches the Spotify window title for free and only calls the API when something actually changed, plus a slow resync (roughly 60 calls an hour while listening instead of 900). Elsewhere it polls gently, goes dormant when nothing is playing, and if Spotify ever says `QUOTA_EXCEEDED` it stops and shows the time it will be back instead of digging the hole deeper. The settings panel shows the call count for the day.
 - **A Like button that actually knows.** The heart is checked against your library the moment the track changes, updates optimistically on press, and reverts if Spotify says no. Works for podcast episodes too.
 - **Stream Deck + support.** Album art, track, artist, elapsed time and a progress bar on the touch strip. Dials for volume and scrubbing. Tap for next, long-tap for like.
 - **Album art everywhere.** Play/Pause and Now Playing keys show the cover with a live progress bar.
@@ -76,6 +76,8 @@ Requires Stream Deck 7.1 or newer (SDK 3, Node.js 24; the app downloads the runt
 - `com.mjp.spotifydeck.sdPlugin/layouts/now-playing.json` – touch-strip layout for the dials.
 
 ## Notes
+
+- If you see "Quota" on a key: Spotify has paused your developer app until the time shown. Nothing is broken; the plugin resumes by itself. Keeping the Spotify desktop app open on Windows keeps API usage lowest.
 
 - Uses Spotify's current `/me/library` endpoints for Like (the older `/me/tracks` ones return 403 for newly created apps) and `/playlists/{id}/items` for playlists.
 - Global settings (Client ID, tokens) are stored by Stream Deck like any other plugin's settings.

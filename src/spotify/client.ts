@@ -21,6 +21,34 @@ export class SpotifyApiError extends Error {
   }
 }
 
+/** Thrown for 429s we must not retry: Spotify's daily Development Mode quota, or a long Retry-After. */
+export class RateLimitError extends SpotifyApiError {
+  constructor(
+    public readonly retryAfterMs: number,
+    public readonly quota: boolean,
+    message: string,
+  ) {
+    super(429, quota ? "QUOTA_EXCEEDED" : "RATE_LIMITED", message);
+  }
+  get retryAt(): number {
+    return Date.now() + this.retryAfterMs;
+  }
+}
+
+/** Simple per-UTC-day request counter so users can see how much of their quota the plugin is using. */
+export const apiStats = {
+  day: "",
+  calls: 0,
+  count(): void {
+    const today = new Date().toISOString().slice(0, 10);
+    if (today !== this.day) {
+      this.day = today;
+      this.calls = 0;
+    }
+    this.calls++;
+  },
+};
+
 type RequestOptions = {
   query?: Record<string, string | number | boolean | undefined>;
   body?: unknown;
@@ -37,6 +65,7 @@ export class SpotifyClient {
     const url = new URL(API + path);
     for (const [k, v] of Object.entries(opts.query ?? {})) if (v !== undefined) url.searchParams.set(k, String(v));
 
+    apiStats.count();
     const res = await fetch(url, {
       method,
       headers: {
@@ -63,13 +92,6 @@ export class SpotifyClient {
       await this.auth.refresh();
       return this.request<T>(method, path, { ...opts, retried: true });
     }
-    if (res.status === 429 && !opts.retried) {
-      const wait = Math.min(Number(res.headers.get("retry-after") ?? "1") * 1000, 5000);
-      logger.warn(`Rate limited on ${method} ${path}; waiting ${wait}ms`);
-      await new Promise((r) => setTimeout(r, wait));
-      return this.request<T>(method, path, { ...opts, retried: true });
-    }
-
     let message = `${res.status} ${res.statusText}`;
     let reason: string | undefined;
     try {
@@ -79,6 +101,21 @@ export class SpotifyClient {
     } catch {
       /* not json */
     }
+
+    if (res.status === 429) {
+      const retryAfterSec = Number(res.headers.get("retry-after"));
+      const quota = reason === "QUOTA_EXCEEDED";
+      logger.warn(`${method} ${path} -> 429 ${reason ?? ""} retry-after=${Number.isFinite(retryAfterSec) ? retryAfterSec : "?"}s`);
+      // Short, ordinary rate limits: wait once and retry. Anything longer (or the daily quota) must be respected
+      // by the caller, otherwise every retry just digs the hole deeper.
+      if (!quota && Number.isFinite(retryAfterSec) && retryAfterSec > 0 && retryAfterSec <= 5 && !opts.retried) {
+        await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
+        return this.request<T>(method, path, { ...opts, retried: true });
+      }
+      const ms = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1000 : quota ? msUntilNextUtcHour() : 60_000;
+      throw new RateLimitError(ms, quota, quota ? "Spotify daily quota exceeded" : "Spotify rate limit hit");
+    }
+
     logger.warn(`${method} ${path} -> ${res.status} ${reason ?? ""} ${message}`);
     throw new SpotifyApiError(res.status, reason, message);
   }
@@ -195,6 +232,12 @@ export { AuthError };
 
 export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
+}
+
+/** When Spotify gives no Retry-After for a quota ban, probe again at the top of the next hour (plus a minute). */
+function msUntilNextUtcHour(): number {
+  const now = Date.now();
+  return 3_600_000 - (now % 3_600_000) + 60_000;
 }
 
 // ---- Raw API shapes (only what we use) -----------------------------------

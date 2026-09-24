@@ -1,6 +1,6 @@
 import streamDeck from "@elgato/streamdeck";
 import { SpotifyAuth } from "./auth";
-import { SpotifyClient, SpotifyApiError, AuthError } from "./client";
+import { SpotifyClient, SpotifyApiError, AuthError, RateLimitError } from "./client";
 import { PlayerMonitor } from "./player";
 
 export const auth = new SpotifyAuth();
@@ -14,6 +14,7 @@ player.on("error", (e) => logger.warn(`Background command failed: ${e instanceof
 /** Turns an error into a short message suitable for logs and the property inspector. */
 export function describeError(e: unknown): string {
   if (e instanceof AuthError) return e.message;
+  if (e instanceof RateLimitError) return player.error ?? e.message;
   if (e instanceof SpotifyApiError) {
     if (e.premiumRequired) return "Spotify Premium is required for playback control.";
     if (e.noActiveDevice) return "No active Spotify device. Open Spotify somewhere and press play once.";

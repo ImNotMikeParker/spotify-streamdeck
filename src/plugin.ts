@@ -47,11 +47,15 @@ function sendToPi(payload: JsonValue): void {
 }
 
 function sendAuthStatus(): void {
-  sendToPi({ event: "auth-status", ...auth.status() });
+  sendToPi({ event: "auth-status", ...auth.status(), stats: player.stats() });
 }
 
 auth.on("status", sendAuthStatus);
 streamDeck.ui.onDidAppear(() => sendAuthStatus());
+// Keep the call counter in the open settings panel fresh without spamming: once every 10 s while a PI is open.
+setInterval(() => {
+  if (streamDeck.ui.action) sendAuthStatus();
+}, 10_000);
 
 streamDeck.ui.onSendToPlugin<JsonValue>(async (ev) => {
   const msg = ev.payload as PiMessage;

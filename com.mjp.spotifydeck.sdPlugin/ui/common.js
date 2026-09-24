@@ -89,6 +89,18 @@
     if (connected) buttons.appendChild(el("button", { text: "Disconnect", onclick: () => send({ event: "disconnect" }) }));
     details.appendChild(el("sdpi-item", { label: "" }, [buttons]));
     host.appendChild(details);
+    if (connected && s.stats) {
+      const st = s.stats;
+      const mode =
+        st.mode === "limited"
+          ? "Paused by Spotify until " + new Date(st.limitedUntil).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+          : st.mode === "local"
+            ? "watching the Spotify window (few API calls)"
+            : st.mode === "dormant"
+              ? "idle, checking rarely"
+              : "polling Spotify (playback is on another device" + (st.watcher ? "" : ", or window watcher unavailable") + ")";
+      host.appendChild(el("div", { class: "sd-attrib", text: "API calls today: " + st.callsToday + " · " + mode }));
+    }
     host.appendChild(el("div", { class: "sd-attrib", text: "Track info and artwork provided by Spotify." }));
 
     host.querySelectorAll("a[data-url]").forEach((a) =>

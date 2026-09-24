@@ -20,9 +20,10 @@ class Catalog {
   playlistName(uri: string): string | undefined {
     const hit = this.playlists.find((p) => p.uri === uri);
     if (!hit && !this.playlists.length && this.playlistsAt === 0) {
-      // Lazily warm the cache so labels appear on next render.
-      this.playlistsAt = -1;
-      this.getPlaylists().catch(() => (this.playlistsAt = 0));
+      // Lazily warm the cache so labels appear on next render. On failure, wait the normal cache period before
+      // trying again: renders happen every second and must never turn into a request loop.
+      this.playlistsAt = Date.now();
+      this.getPlaylists(true).catch(() => {});
     }
     return hit?.name;
   }

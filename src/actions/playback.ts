@@ -2,7 +2,7 @@ import { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { GREEN, MUTED, glyphs, keyImage, notConnectedImage } from "../render/svg";
 import { auth, player } from "../spotify";
-import { isLikeable } from "../spotify/player";
+import { formatClock, isLikeable } from "../spotify/player";
 import { SpotifyAction, desiredState, type AnyAction } from "./base";
 
 // ---------------------------------------------------------------------------
@@ -85,7 +85,18 @@ export class NowPlaying extends SpotifyAction<NowPlayingSettings> {
     const st = player.state;
     const t = st?.track;
     if (!t) {
-      return a.setImage(keyImage({ glyph: glyphs.spotify, glyphColor: "#333", glyphScale: 0.5, glyphY: -12, title: player.error ? "Offline" : "Nothing", subtitle: player.error ? "check settings" : "playing", titleColor: MUTED }));
+      const limited = player.isLimited;
+      return a.setImage(
+        keyImage({
+          glyph: glyphs.spotify,
+          glyphColor: "#333",
+          glyphScale: 0.5,
+          glyphY: -12,
+          title: limited ? "Quota" : player.error ? "Offline" : "Nothing",
+          subtitle: limited ? `until ${formatClock(player.limitedUntil!)}` : player.error ? "check settings" : "playing",
+          titleColor: limited ? "#e5a53a" : MUTED,
+        }),
+      );
     }
     const showText = s.showText !== false;
     const dur = t.durationMs;
