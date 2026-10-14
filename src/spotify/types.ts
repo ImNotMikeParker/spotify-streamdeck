@@ -1,13 +1,19 @@
 export type RepeatState = "off" | "context" | "track";
 
+/**
+ * What the plugin persists in Stream Deck's global settings. Only durable values: the short-lived access token
+ * lives in memory, so settings are written only when one of these actually changes (see SpotifyAuth.persist).
+ */
 export type GlobalSettings = {
   clientId?: string;
   port?: number;
   refreshToken?: string;
-  accessToken?: string;
-  /** Epoch ms when accessToken expires. */
-  expiresAt?: number;
   userName?: string;
+  /** Epoch ms of the last write; used to pick the newer of Stream Deck's copy and the encrypted backup. */
+  savedAt?: number;
+  /** Legacy (<= 1.0.1) fields, stripped on the next write. */
+  accessToken?: string;
+  expiresAt?: number;
 };
 
 export type Track = {

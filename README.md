@@ -77,6 +77,9 @@ Requires Stream Deck 7.1 or newer (SDK 3, Node.js 24; the app downloads the runt
 
 ## Notes
 
+- **Your sign-in survives Stream Deck losing its settings.** Stream Deck stores plugin settings behind Windows Credential Manager and sometimes cannot read them back after it is force-closed or Windows shuts down (Elgato's own plugins hit this too). Simply Spotify keeps a second, encrypted copy of your Client ID and sign-in and restores it automatically. On Windows it lives at `%APPDATA%SimplySpotifyconnection.dat`, encrypted with DPAPI so only your Windows account on this PC can read it; on macOS it is a login Keychain item named `com.mjp.spotifydeck`. Disconnect removes the sign-in from both places; delete that file or Keychain item to forget the Client ID too.
+- The short-lived access token is never written to disk, and settings are only saved when something durable changes.
+
 - If you see "Quota" on a key: Spotify has paused your developer app until the time shown. Nothing is broken; the plugin resumes by itself. Keeping the Spotify desktop app open on Windows keeps API usage lowest.
 
 - Uses Spotify's current `/me/library` endpoints for Like (the older `/me/tracks` ones return 403 for newly created apps) and `/playlists/{id}/items` for playlists.

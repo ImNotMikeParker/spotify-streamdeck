@@ -2,6 +2,7 @@ import streamDeck from "@elgato/streamdeck";
 import { createHash, randomBytes } from "node:crypto";
 import { EventEmitter } from "node:events";
 import http from "node:http";
+import { clearDurable, readDurable, secureStoreSupported, writeDurable, type Durable } from "./secure-store";
 import type { AuthStatus, GlobalSettings } from "./types";
 
 const AUTHORIZE_URL = "https://accounts.spotify.com/authorize";
@@ -29,24 +30,93 @@ function b64url(buf: Buffer): string {
 
 export class AuthError extends Error {}
 
+const DURABLE_KEYS = ["clientId", "port", "refreshToken", "userName"] as const;
+
+function durableOf(s: GlobalSettings | Durable): Durable {
+  const d: Durable = {};
+  for (const k of DURABLE_KEYS) if (s[k] !== undefined && s[k] !== "") (d as Record<string, unknown>)[k] = s[k];
+  return d;
+}
+
+function sameDurable(a: Durable, b: Durable): boolean {
+  return DURABLE_KEYS.every((k) => (a[k] ?? null) === (b[k] ?? null));
+}
+
 /**
- * Handles Spotify Authorization Code + PKCE, token persistence (in Stream Deck global settings) and refresh.
+ * Handles Spotify Authorization Code + PKCE, persistence and token refresh.
+ *
+ * Persistence is deliberately conservative:
+ * - Only durable values (Client ID, port, refresh token, display name) are stored, and only when they change.
+ *   The access token is kept in memory and simply refreshed after a restart.
+ * - They are stored twice: in Stream Deck's global settings, and in an OS-encrypted backup (see secure-store.ts).
+ *   Stream Deck sometimes loses global settings after being killed; on startup the newer surviving copy wins.
  * No client secret is needed, so nothing beyond the user's own tokens is ever stored.
  */
 export class SpotifyAuth extends EventEmitter {
   private settings: GlobalSettings = {};
+  /** In-memory only. */
+  private accessToken: string | null = null;
+  private expiresAt = 0;
+  private persistChain: Promise<void> = Promise.resolve();
   private refreshing: Promise<string> | null = null;
   private pending: { server: http.Server; timer: NodeJS.Timeout } | null = null;
   private lastMessage: string | undefined;
   private busy = false;
 
   async init(): Promise<void> {
-    this.settings = (await streamDeck.settings.getGlobalSettings<GlobalSettings>()) ?? {};
+    const fromDeck = (await streamDeck.settings.getGlobalSettings<GlobalSettings>()) ?? {};
+    let backup: Durable | null = null;
+    try {
+      backup = await readDurable();
+    } catch (e) {
+      logger.warn(`Could not read encrypted backup: ${e instanceof Error ? e.message : e}`);
+    }
+
+    // Pick the better surviving copy: one with a refresh token beats one without; otherwise the newer write wins.
+    // A deliberate disconnect clears the token in both stores, so it is never "restored" by accident.
+    const deckHas = !!(fromDeck.clientId || fromDeck.refreshToken);
+    const backupHas = !!(backup && (backup.clientId || backup.refreshToken));
+    let source: "deck" | "backup" | "none" = "none";
+    let chosen: Durable = {};
+    if (deckHas && backupHas) {
+      const deckNewer = (fromDeck.savedAt ?? 0) >= (backup!.savedAt ?? 0);
+      const deckRicher = !!fromDeck.refreshToken && !backup!.refreshToken;
+      const backupRicher = !!backup!.refreshToken && !fromDeck.refreshToken;
+      source = backupRicher ? "backup" : deckRicher ? "deck" : deckNewer ? "deck" : "backup";
+      chosen = source === "deck" ? { ...durableOf(fromDeck), savedAt: fromDeck.savedAt } : backup!;
+    } else if (deckHas) {
+      source = "deck";
+      chosen = { ...durableOf(fromDeck), savedAt: fromDeck.savedAt };
+    } else if (backupHas) {
+      source = "backup";
+      chosen = backup!;
+    }
+    this.settings = { ...durableOf(chosen), savedAt: chosen.savedAt };
+
+    // Legacy (<= 1.0.1) settings carried an access token; reuse it for this session only.
+    if (source === "deck" && fromDeck.accessToken && fromDeck.expiresAt) {
+      this.accessToken = fromDeck.accessToken;
+      this.expiresAt = fromDeck.expiresAt;
+    }
+
+    logger.info(
+      `Loaded settings from ${source}: clientId=${this.settings.clientId ? "set" : "missing"}, refreshToken=${this.settings.refreshToken ? "set" : "missing"}` +
+        ` (Stream Deck copy: ${deckHas ? "ok" : "empty"}, encrypted backup: ${secureStoreSupported ? (backupHas ? "ok" : "empty") : "unsupported"})`,
+    );
+    if (source === "backup" && !deckHas) logger.info("Stream Deck lost the saved settings; restored them from the encrypted backup.");
+
+    // Heal whichever store is behind (and strip legacy access-token fields) so both match from now on.
+    const needsDeckWrite =
+      source !== "none" && (!sameDurable(durableOf(fromDeck), this.settings) || fromDeck.accessToken !== undefined || fromDeck.expiresAt !== undefined);
+    const needsBackupWrite = source !== "none" && secureStoreSupported && (!backup || !sameDurable(durableOf(backup), this.settings));
+    if (needsDeckWrite || needsBackupWrite) this.persist({ deck: needsDeckWrite, backup: needsBackupWrite, touch: false });
+
     streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings>((ev) => {
-      // Keep our copy in sync when the property inspector (or we) write settings.
-      this.settings = ev.settings ?? {};
+      // Only the property inspector triggers this (SDK 3). Accept durable values it may have written, but never let
+      // an empty payload wipe a working connection.
+      const incoming = durableOf(ev.settings ?? {});
+      if (Object.keys(incoming).length) this.settings = { ...this.settings, ...incoming };
     });
-    logger.info(`Loaded settings: clientId=${this.settings.clientId ? "set" : "missing"}, refreshToken=${this.settings.refreshToken ? "set" : "missing"}`);
     this.emit("status", this.status());
   }
 
@@ -74,13 +144,38 @@ export class SpotifyAuth extends EventEmitter {
     };
   }
 
-  private async save(patch: Partial<GlobalSettings>): Promise<void> {
-    // Always merge on top of the freshest copy so we never clobber values written elsewhere.
-    const current = (await streamDeck.settings.getGlobalSettings<GlobalSettings>()) ?? {};
-    const next: GlobalSettings = { ...current, ...patch };
-    for (const k of Object.keys(next) as (keyof GlobalSettings)[]) if (next[k] === undefined) delete next[k];
+  /** Updates durable values; writes both stores only when something actually changed. */
+  private async save(patch: Partial<Durable>): Promise<void> {
+    const before = durableOf(this.settings);
+    const next: GlobalSettings = { ...this.settings, ...patch };
+    for (const k of Object.keys(next) as (keyof GlobalSettings)[]) if (next[k] === undefined || next[k] === "") delete next[k];
     this.settings = next;
-    await streamDeck.settings.setGlobalSettings(next);
+    if (sameDurable(before, durableOf(next))) return;
+    this.persist({ deck: true, backup: true, touch: true });
+    await this.persistChain;
+  }
+
+  /** Serialised writes so two quick changes can never interleave and leave the stores out of step. */
+  private persist(opts: { deck: boolean; backup: boolean; touch: boolean }): void {
+    if (opts.touch) this.settings.savedAt = Date.now();
+    const snapshot: GlobalSettings = { ...durableOf(this.settings), savedAt: this.settings.savedAt ?? Date.now() };
+    this.persistChain = this.persistChain.then(async () => {
+      if (opts.deck) {
+        try {
+          await streamDeck.settings.setGlobalSettings(snapshot);
+        } catch (e) {
+          logger.warn(`Saving Stream Deck settings failed: ${e instanceof Error ? e.message : e}`);
+        }
+      }
+      if (opts.backup) {
+        try {
+          if (snapshot.clientId || snapshot.refreshToken) await writeDurable(snapshot);
+          else await clearDurable();
+        } catch (e) {
+          logger.warn(`Saving encrypted backup failed: ${e instanceof Error ? e.message : e}`);
+        }
+      }
+    });
   }
 
   private setMessage(message: string | undefined): void {
@@ -91,8 +186,7 @@ export class SpotifyAuth extends EventEmitter {
   /** Returns a valid access token, refreshing if needed. Throws AuthError when not connected. */
   async getAccessToken(): Promise<string> {
     if (!this.isConnected) throw new AuthError("Not connected to Spotify. Open an action's settings and click Connect.");
-    const { accessToken, expiresAt } = this.settings;
-    if (accessToken && expiresAt && Date.now() < expiresAt - 30_000) return accessToken;
+    if (this.accessToken && Date.now() < this.expiresAt - 30_000) return this.accessToken;
     return this.refresh();
   }
 
@@ -112,25 +206,29 @@ export class SpotifyAuth extends EventEmitter {
       const text = await res.text();
       logger.error(`Token refresh failed (${res.status}): ${text}`);
       if (res.status === 400 || res.status === 401) {
-        // Refresh token revoked/expired: force a re-connect.
-        await this.save({ refreshToken: undefined, accessToken: undefined, expiresAt: undefined });
+        // Refresh token revoked/expired: force a re-connect. The Client ID is kept so Connect is one click.
+        this.accessToken = null;
+        await this.save({ refreshToken: undefined });
         this.setMessage("Spotify session expired. Please connect again.");
         throw new AuthError("Spotify session expired. Please connect again.");
       }
       throw new Error(`Token refresh failed: ${res.status}`);
     }
     const json = (await res.json()) as { access_token: string; expires_in: number; refresh_token?: string };
-    await this.save({
-      accessToken: json.access_token,
-      expiresAt: Date.now() + json.expires_in * 1000,
-      ...(json.refresh_token ? { refreshToken: json.refresh_token } : {}),
-    });
+    this.accessToken = json.access_token;
+    this.expiresAt = Date.now() + json.expires_in * 1000;
+    // Spotify may rotate the refresh token. Only then is anything written to disk.
+    if (json.refresh_token && json.refresh_token !== refreshToken) {
+      logger.debug("Refresh token rotated; saving.");
+      await this.save({ refreshToken: json.refresh_token });
+    }
     return json.access_token;
   }
 
   async disconnect(): Promise<void> {
     this.cancelPending();
-    await this.save({ refreshToken: undefined, accessToken: undefined, expiresAt: undefined, userName: undefined });
+    this.accessToken = null;
+    await this.save({ refreshToken: undefined, userName: undefined });
     this.setMessage("Disconnected.");
   }
 
@@ -176,7 +274,9 @@ export class SpotifyAuth extends EventEmitter {
       const res = await fetch(TOKEN_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       if (!res.ok) throw new Error(`Token exchange failed (${res.status}): ${await res.text()}`);
       const json = (await res.json()) as { access_token: string; expires_in: number; refresh_token: string };
-      await this.save({ accessToken: json.access_token, expiresAt: Date.now() + json.expires_in * 1000, refreshToken: json.refresh_token });
+      this.accessToken = json.access_token;
+      this.expiresAt = Date.now() + json.expires_in * 1000;
+      await this.save({ refreshToken: json.refresh_token });
 
       // Fetch the display name so the UI can show who is connected.
       let premiumNote = "";
